@@ -1,0 +1,231 @@
+import random
+import math
+import sys
+
+# ==========================================
+# 💜 VALERIA 60 — 5→60→3 💜
+# 🎯 SE DETIENE SOLA CUANDO APRENDE ✅
+# ⚡ MÁXIMA EFICIENCIA MATEMÁTICA
+# 📱 OPTIMIZADA PARA PYDROID 3
+# ==========================================
+
+# ⚙️ CONFIGURACIÓN — SOLO MODIFICA AQUÍ
+CONFIG = {
+    "n_entradas": 5,        # 📥 5 entradas
+    "n_ocultas": 60,       # 🧠 60 neuronas ocultas
+    "n_salidas": 3,        # 📤 3 salidas
+    "tasa_aprendizaje": 0.75,  # ⚡ Más rápida
+    "epocas_max": 15000,   # ⏱️ Máximo 15,000
+    "error_minimo": 0.0003, # 🎯 Muy preciso para detenerse
+    "semilla": 42
+}
+
+random.seed(CONFIG["semilla"])
+
+# 📐 CÁLCULO AUTOMÁTICO DE PARÁMETROS
+n_e = CONFIG["n_entradas"]
+n_h = CONFIG["n_ocultas"]
+n_o = CONFIG["n_salidas"]
+
+pesos_e_h = n_e * n_h    # 5×60 = 300
+bias_h = n_h             # 60
+pesos_h_o = n_h * n_o    # 60×3 = 180
+bias_o = n_o             # 3
+total_parametros = pesos_e_h + bias_h + pesos_h_o + bias_o  # ✅ 543 TOTAL
+
+# 🔹 DATOS DE ENTRENAMIENTO — 5 ENTRADAS → 3 SALIDAS
+# Regla clara para que aprenda rápido
+datos = [
+    ([0, 0, 0, 0, 0], [0, 0, 0]),
+    ([1, 1, 1, 0, 0], [1, 1, 0]),
+    ([0, 0, 1, 1, 1], [0, 1, 1]),
+    ([1, 1, 0, 0, 1], [1, 0, 1]),
+    ([1, 0, 1, 0, 1], [1, 1, 1]),
+    ([0, 1, 0, 1, 0], [0, 0, 0]),
+]
+
+# ==========================================
+# 💜 INICIALIZACIÓN VALERIA — OPTIMIZADA 💜
+# ==========================================
+def inicializar_pesos_valeria(n_in, n_out):
+    """Inicialización optimizada → mejor arranque = aprende más rápido"""
+    limite = math.sqrt(2.0 / n_in)  # ✅ Matemáticamente óptimo
+    return random.uniform(-limite, limite)
+
+# ==========================================
+# 🔧 FUNCIONES — EFICIENCIA MATEMÁTICA
+# ==========================================
+def sigmoid(x):
+    """Protegida + rápida sin desbordamientos"""
+    if x < -50: return 0.0
+    if x > 50: return 1.0
+    return 1.0 / (1.0 + math.exp(-x))
+
+def derivada_sigmoid(x):
+    """Directa = menos cálculos = más rápida"""
+    return x * (1.0 - x)
+
+# ==========================================
+# 📦 ESTRUCTURA — CREACIÓN VECTORIZADA
+# ==========================================
+# Capa oculta: 5→60
+pesos_oculta = [[inicializar_pesos_valeria(n_e, n_h) for _ in range(n_e)] for _ in range(n_h)]
+bias_oculta = [0.0] * n_h
+
+# Capa salida: 60→3
+pesos_salida = [[inicializar_pesos_valeria(n_h, n_o) for _ in range(n_h)] for _ in range(n_o)]
+bias_salida = [0.0] * n_o
+
+# ==========================================
+# 🔄 PROPAGACIÓN — CÁLCULO MÁS EFICIENTE
+# ==========================================
+def forward(entradas):
+    """Cálculo optimizado → menos operaciones, mismo resultado"""
+    # Capa oculta
+    ocultas = []
+    for i in range(n_h):
+        suma = bias_oculta[i]
+        for j in range(n_e):
+            suma += entradas[j] * pesos_oculta[i][j]
+        ocultas.append(sigmoid(suma))
+    
+    # Capa de salida
+    salidas = []
+    for s in range(n_o):
+        suma = bias_salida[s]
+        for i in range(n_h):
+            suma += ocultas[i] * pesos_salida[s][i]
+        salidas.append(sigmoid(suma))
+    
+    return ocultas, salidas
+
+# ==========================================
+# 📊 GRÁFICA COMPACTA
+# ==========================================
+def graficar_error(hist_ep, hist_err):
+    print("\n" + "━"*50)
+    print(" 📊 CURVA DE APRENDIZAJE — VALERIA 60 💜")
+    print("━"*50)
+    print(" █ ALTO ERROR | ░ BAJO ERROR ✅")
+    print("─"*50)
+    
+    paso = max(1, len(hist_ep) // 20)
+    max_e, min_e = max(hist_err), min(hist_err)
+    rango = max_e - min_e if max_e != min_e else 1
+    
+    for i in range(0, len(hist_ep), paso):
+        nivel = int(((hist_err[i] - min_e) / rango) * 20)
+        print(f" {hist_ep[i]:5d} | {hist_err[i]:.5f} |{'█'*nivel}{'░'*(20-nivel)}|")
+    
+    print("━"*50)
+    print(f" 🔴 Error inicial: {hist_err[0]:.5f}")
+    print(f" 🟢 Error final:   {hist_err[-1]:.5f}")
+    print("━"*50)
+
+# ==========================================
+# 🏋️ ENTRENAMIENTO — EFICIENCIA MÁXIMA
+# ==========================================
+def entrenar():
+    global pesos_oculta, bias_oculta, pesos_salida, bias_salida
+    tasa = CONFIG["tasa_aprendizaje"]
+    epocas_max = CONFIG["epocas_max"]
+    error_limite = CONFIG["error_minimo"]
+    
+    print("\n" + "━"*55)
+    print(" 💜 VALERIA 60 — RED NEURONAL 💜")
+    print(f" 🧠 ARQUITECTURA: {n_e} → {n_h} → {n_o}")
+    print(f" 🔬 PARÁMETROS: {total_parametros}")
+    print(f" ⏱️  MÁXIMO: {epocas_max:,} épocas")
+    print(f" 🛑 SE DETIENE si error < {error_limite}")
+    print("━"*55)
+    
+    hist_ep, hist_err = [], []
+    
+    for epoca in range(epocas_max):
+        error_total = 0.0
+        
+        for entradas, esperado in datos:
+            ocultas, salida_final = forward(entradas)
+            
+            # 📉 Cálculo de error + deltas por cada salida
+            delta_sal = []
+            for s in range(n_o):
+                error = salida_final[s] - esperado[s]
+                error_total += error ** 2
+                delta_sal.append(error * derivada_sigmoid(salida_final[s]))
+            
+            # ✅ Retropropagación optimizada (pesos antiguos primero)
+            pesos_ant = [pesos_salida[s].copy() for s in range(n_o)]
+            
+            # Actualizar capa de salida
+            for s in range(n_o):
+                for i in range(n_h):
+                    pesos_salida[s][i] -= tasa * delta_sal[s] * ocultas[i]
+                bias_salida[s] -= tasa * delta_sal[s]
+            
+            # Actualizar capa oculta
+            for i in range(n_h):
+                err_oc = sum(delta_sal[s] * pesos_ant[s][i] for s in range(n_o))
+                delta_oc = err_oc * derivada_sigmoid(ocultas[i])
+                for j in range(n_e):
+                    pesos_oculta[i][j] -= tasa * delta_oc * entradas[j]
+                bias_oculta[i] -= tasa * delta_oc
+        
+        hist_ep.append(epoca + 1)
+        hist_err.append(error_total)
+        
+        # 📊 Progreso
+        if (epoca + 1) % 1000 == 0:
+            print(f" 🔄 Época {epoca+1:5d} | Error: {error_total:.5f}")
+            sys.stdout.flush()
+        
+        # 🛑 SE DETIENE SOLA cuando ya aprendió
+        if error_total < error_limite:
+            print(f"\n🎉 🧠 ¡YA APRENDIÓ! — SE DETUVO SOLA")
+            print(f"    Época: {epoca+1} | Error: {error_total:.6f} < {error_limite}")
+            break
+    
+    return epoca + 1, hist_ep, hist_err
+
+# ==========================================
+# 🔮 PREDICCIÓN
+# ==========================================
+def predecir(entradas):
+    _, salidas = forward(entradas)
+    return [round(s) for s in salidas], salidas
+
+# ==========================================
+# 🚀 EJECUCIÓN AUTOMÁTICA
+# ==========================================
+if __name__ == "__main__":
+    print("\n🧠 INICIANDO VALERIA 60 — 5→60→3 💜")
+    print("📱 Optimizada para Pydroid 3 | 🛑 Se detiene sola\n")
+    
+    ep_final, hist_ep, hist_err = entrenar()
+    graficar_error(hist_ep, hist_err)
+    
+    # 📋 RESULTADOS FINALES
+    print("\n" + "━"*55)
+    print(" 📋 RESULTADOS FINALES — 3 SALIDAS")
+    print("━"*55)
+    print(f"{'Entrada (5)':<14} | {'Esperado (3)':<14} | {'Obtenido':<12} | ✅")
+    print("─"*55)
+    
+    total_ok = 0
+    total = len(datos) * n_o
+    
+    for entradas, esperado in datos:
+        pred, sal = predecir(entradas)
+        ok_count = sum(1 for p, e in zip(pred, esperado) if p == e)
+        total_ok += ok_count
+        estado = "✅ PERFECTO" if ok_count == n_o else f"⚠️ {ok_count}/{n_o}"
+        print(f"{str(entradas):<14} | {str(esperado):<14} | {str(pred):<12} | {estado}")
+    
+    print("━"*55)
+    print(f" 🎯 Aciertos totales: {total_ok}/{total}")
+    print(f" 📊 Precisión: {100*total_ok/total:.1f}%")
+    print(f" ⏱️  Épocas usadas: {ep_final:,}")
+    print(f" 🧠 Arquitectura: {n_e}→{n_h}→{n_o}")
+    print(f" 🛑 Se detuvo automáticamente: {'SÍ ✅' if ep_final < CONFIG['epocas_max'] else 'NO (llegó al máximo)'}")
+    print(" 💜 VALERIA 60 — INTELIGENCIA ARTIFICIAL 💜")
+    print("━"*55)
